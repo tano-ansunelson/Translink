@@ -1,4 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:translink/firebase_options.dart';
 import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
 import 'package:translink/screens/Bottom_Navigation/bottombar_navigation_screen.dart';
 import 'package:translink/screens/Home/chat_screen/chat_message_screen.dart';
@@ -26,7 +28,9 @@ import 'package:translink/screens/onboarding_screens/splash_screen.dart';
 
 //import 'package:translink_project/screens/registration_screens/signup_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 

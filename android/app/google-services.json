@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "323837126243",
+    "project_id": "translink-5a458",
+    "storage_bucket": "translink-5a458.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323837126243:android:74df1b04e62e792452ba56",
+        "android_client_info": {
+          "package_name": "com.example.translink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVKGMDoCL3HJ32hIBx_v9nlp-UHLM069c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

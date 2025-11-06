@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/web.dart';
 import 'package:translink/screens/Profile/edit_profile_screen.dart';
+import 'package:translink/screens/Registration_screen/login_screen.dart';
+import 'package:translink/utils/logout_handler.dart';
 
 class TransLinkProfilePage extends StatefulWidget {
   const TransLinkProfilePage({super.key});
@@ -12,6 +16,12 @@ class TransLinkProfilePage extends StatefulWidget {
 class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
   //int _currentIndex = 4;
   //// Profile tab selected
+  final log = Logger();
+  @override
+  void initState() {
+    FirebaseAuth.instance.currentUser?.reload();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -338,9 +348,9 @@ class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
   Widget _buildLogoutTile() {
     return Container(
       decoration: BoxDecoration(
-        color: Color(0xFFFFA500),
+        color: Color.fromARGB(255, 103, 76, 26),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Color(0xFFFFA500)),
+        border: Border.all(color: Color.fromARGB(255, 126, 91, 27)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -348,7 +358,7 @@ class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Color(0xFFFFA500),
+            color: Color.fromARGB(255, 235, 172, 55),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Icons.logout, color: Colors.red, size: 24),
@@ -366,10 +376,147 @@ class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
           size: 16,
           color: Colors.black,
         ),
-        onTap: () {},
+        onTap: () {
+          LogoutHandler.handleLogout(context);
+          log.i("User logged out");
+        },
       ),
     );
   }
+
+  // Future<void> _handleLogout() async {
+  //   try {
+  //     // Show modern loading dialog
+  //     showDialog(
+  //       context: context,
+  //       barrierDismissible: false,
+  //       builder: (context) => Center(
+  //         child: Container(
+  //           padding: const EdgeInsets.all(24),
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(16),
+  //           ),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               const CircularProgressIndicator(color: Color(0xFF4CAF50)),
+  //               const SizedBox(height: 16),
+  //               Text(
+  //                 'Logging out...',
+  //                 style: TextStyle(color: Colors.grey[700], fontSize: 16),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     );
+
+  //     await FirebaseAuth.instance.signOut();
+
+  //     if (mounted) {
+  //       Navigator.pop(context); // Close loading dialog
+  //       Navigator.pushNamed(context, LoginScreen.id);
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       Navigator.pop(context); // Close loading dialog
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Row(
+  //             children: [
+  //               const Icon(Icons.error, color: Colors.white),
+  //               const SizedBox(width: 12),
+  //               Expanded(child: Text('Failed to log out: ${e.toString()}')),
+  //             ],
+  //           ),
+  //           backgroundColor: Colors.red,
+  //           behavior: SnackBarBehavior.floating,
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(12),
+  //           ),
+  //           duration: const Duration(seconds: 3),
+  //         ),
+  //       );
+  //     }
+  //     log.e('Logout error: $e');
+  //   }
+  // }
+  // Future<void> _handleLogout() async {
+  //   try {
+  //     // Show loading dialog
+  //     showDialog(
+  //       context: context,
+  //       barrierDismissible: false,
+  //       builder: (context) => Center(
+  //         child: Container(
+  //           padding: const EdgeInsets.all(24),
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(16),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: Colors.black.withOpacity(0.1),
+  //                 blurRadius: 8,
+  //                 offset: const Offset(0, 3),
+  //               ),
+  //             ],
+  //           ),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               const CircularProgressIndicator(color: Color(0xFF4CAF50)),
+  //               const SizedBox(height: 16),
+  //               Text(
+  //                 'Logging out...',
+  //                 style: TextStyle(color: Colors.grey[700], fontSize: 16),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     );
+
+  //     // Sign out user
+  //     await FirebaseAuth.instance.signOut();
+
+  //     if (!mounted) return;
+
+  //     // Close dialog
+  //     Navigator.of(context, rootNavigator: true).pop();
+
+  //     // Clear navigation stack and go to login screen
+  //     Navigator.pushNamedAndRemoveUntil(
+  //       context,
+  //       LoginScreen.id,
+  //       (route) => false,
+  //     );
+  //   } catch (e, stack) {
+  //     if (!mounted) return;
+
+  //     Navigator.of(context, rootNavigator: true).pop(); // Close dialog if open
+
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Row(
+  //           children: [
+  //             const Icon(Icons.error_outline, color: Colors.white),
+  //             const SizedBox(width: 12),
+  //             Expanded(child: Text('Failed to log out: ${e.toString()}')),
+  //           ],
+  //         ),
+  //         backgroundColor: Colors.redAccent,
+  //         behavior: SnackBarBehavior.floating,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //       ),
+  //     );
+
+  //     debugPrint('Logout error: $e');
+  //     debugPrintStack(stackTrace: stack);
+  //   }
+  // }
 }
 
 class ProfileAvatarPainter extends CustomPainter {

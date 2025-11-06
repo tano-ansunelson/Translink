@@ -185,11 +185,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, TransLinkBottomNav.id);
-                      },
-
-                      // isLoading ? null : _handleSignUp,
+                      onPressed: isLoading ? null : _handleSignUp,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFFA500),
                         elevation: 0,
@@ -465,49 +461,49 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  // void _handleSignUp() async {
-  //   if (_formKey.currentState!.validate()) {
-  //     // Proceed with sign-up logic
-  //     setState(() {
-  //       isLoading = true;
-  //     });
-  //     try {
-  //       print('start signup');
-  //       final userCredential = await FirebaseAuth.instance
-  //           .createUserWithEmailAndPassword(
-  //             email: _emailController.text.trim(),
-  //             password: _passwordController.text.trim(),
-  //           );
-  //       print('user created: ${userCredential.user?.uid}');
-  //       final uid = userCredential.user?.uid;
-  //       await FirebaseFirestore.instance.collection('users').doc(uid).set({
-  //         'fullName': _fullNameController.text.trim(),
-  //         'email': _emailController.text.trim(),
-  //         'createdAt': FieldValue.serverTimestamp(),
-  //       });
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //       if (!context.mounted) return;
-  //       Navigator.pushReplacementNamed(context, TransLinkBottomNav.id);
-  //     } on FirebaseAuthException catch (e) {
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //       String errorMessage = 'An error occurred. Please try again.';
-  //       if (e.code == 'email-already-in-use') {
-  //         errorMessage =
-  //             'The email is already in use. Please use a different email.';
-  //       } else if (e.code == 'weak-password') {
-  //         errorMessage =
-  //             'The password provided is too weak. Please choose a stronger password.';
-  //       } else {
-  //         errorMessage = e.message ?? errorMessage;
-  //       }
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-  //       );
-  //     }
-  //   }
-  // }
+  void _handleSignUp() async {
+    if (_formKey.currentState!.validate()) {
+      // Proceed with sign-up logic
+      setState(() {
+        isLoading = true;
+      });
+      try {
+        print('start signup');
+        final userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
+        print('user created: ${userCredential.user?.uid}');
+        final uid = userCredential.user?.uid;
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'fullName': _fullNameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        setState(() {
+          isLoading = false;
+        });
+        if (!context.mounted) return;
+        Navigator.pushReplacementNamed(context, TransLinkBottomNav.id);
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        String errorMessage = 'An error occurred. Please try again.';
+        if (e.code == 'email-already-in-use') {
+          errorMessage =
+              'The email is already in use. Please use a different email.';
+        } else if (e.code == 'weak-password') {
+          errorMessage =
+              'The password provided is too weak. Please choose a stronger password.';
+        } else {
+          errorMessage = e.message ?? errorMessage;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
 }
