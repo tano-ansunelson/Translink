@@ -29,7 +29,7 @@ class LogoutHandler {
               ),
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Log Out'),
+            child: const Text('Yes'),
           ),
         ],
       ),

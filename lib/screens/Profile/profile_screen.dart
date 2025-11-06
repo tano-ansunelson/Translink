@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/web.dart';
+import 'package:logger/logger.dart';
+
 import 'package:translink/screens/Profile/edit_profile_screen.dart';
 //import 'package:translink/screens/Registration_screen/login_screen.dart';
 import 'package:translink/utils/logout_handler.dart';
