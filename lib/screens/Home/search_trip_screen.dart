@@ -19,6 +19,7 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
 
   bool _hasSearched = false;
   String _tripType = 'ride'; // 'ride' or 'cargo'
+  // ignore: unused_field
   String? _seatsError;
   Stream<QuerySnapshot>? _tripsStream;
 
