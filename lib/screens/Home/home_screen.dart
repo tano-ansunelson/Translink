@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
 import 'package:translink/screens/Home/create_trip_screen.dart';
@@ -14,42 +15,52 @@ class TransLinkHomePage extends StatefulWidget {
 class _TransLinkHomePageState extends State<TransLinkHomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String _capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
+  }
+  // final List<RideOffer> rides = [
+  //   RideOffer(
+  //     route: 'Accra to Kumasi',
+  //     seatsAvailable: 12,
+  //     price: 100,
+  //     imageUrl: 'assets/road1.jpg',
+  //   ),
+  //   RideOffer(
+  //     route: 'Accra to Takoradi',
+  //     seatsAvailable: 8,
+  //     price: 80,
+  //     imageUrl: 'assets/road2.jpg',
+  //   ),
+  //   RideOffer(
+  //     route: 'Accra to Tamale',
+  //     seatsAvailable: 15,
+  //     price: 150,
+  //     imageUrl: 'assets/road3.jpg',
+  //   ),
+  // ];
 
-  final List<RideOffer> rides = [
-    RideOffer(
-      route: 'Accra to Kumasi',
-      seatsAvailable: 12,
-      price: 100,
-      imageUrl: 'assets/road1.jpg',
-    ),
-    RideOffer(
-      route: 'Accra to Takoradi',
-      seatsAvailable: 8,
-      price: 80,
-      imageUrl: 'assets/road2.jpg',
-    ),
-    RideOffer(
-      route: 'Accra to Tamale',
-      seatsAvailable: 15,
-      price: 150,
-      imageUrl: 'assets/road3.jpg',
-    ),
-  ];
-
-  final List<RideOffer> cargo = [
-    RideOffer(
-      route: 'Accra to Kumasi',
-      seatsAvailable: 5,
-      price: 120,
-      imageUrl: 'assets/cargo1.jpg',
-    ),
-    RideOffer(
-      route: 'Accra to Cape Coast',
-      seatsAvailable: 3,
-      price: 90,
-      imageUrl: 'assets/cargo2.jpg',
-    ),
-  ];
+  // final List<RideOffer> cargo = [
+  //   RideOffer(
+  //     route: 'Accra to Kumasi',
+  //     seatsAvailable: 5,
+  //     price: 120,
+  //     imageUrl: 'assets/cargo1.jpg',
+  //   ),
+  //   RideOffer(
+  //     route: 'Accra to Cape Coast',
+  //     seatsAvailable: 3,
+  //     price: 90,
+  //     imageUrl: 'assets/cargo2.jpg',
+  //   ),
+  // ];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -129,44 +140,127 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
             // Divider
             const Divider(height: 1, thickness: 1),
             const SizedBox(height: 16),
+
             // Scrollable content
             Expanded(
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // Rides tab
-                  SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: List.generate(
-                          rides.length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _buildRideCard(rides[index]),
+                  StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('trips')
+                        .where('tripType', isEqualTo: 'ride')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(child: Text('No rides available'));
+                      }
+                      return SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: snapshot.data!.docs.map((doc) {
+                              final data = doc.data() as Map<String, dynamic>;
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: _buildRideCard(
+                                  RideOffer(
+                                    route:
+                                        '${_capitalize(data['origin'])} to ${_capitalize(data['destination'])}',
+                                    seatsAvailable: data['seats'] ?? 0,
+                                    price: data['price'].toInt(),
+                                    imageUrl: 'assets/road1.jpg',
+                                    tripType: 'ride',
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                  // Cargo tab
-                  SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: List.generate(
-                          cargo.length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _buildRideCard(cargo[index]),
+
+                  StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('trips')
+                        .where('tripType', isEqualTo: 'cargo')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(child: Text('No cargo available'));
+                      }
+                      return SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: snapshot.data!.docs.map((doc) {
+                              final data = doc.data() as Map<String, dynamic>;
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: _buildRideCard(
+                                  RideOffer(
+                                    route:
+                                        '${_capitalize(data['origin'])} to ${_capitalize(data['destination'])}',
+                                    seatsAvailable: 0,
+                                    price: data['price'].toInt(),
+                                    imageUrl: 'assets/cargo1.jpg',
+                                    tripType: 'cargo',
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
+            // Expanded(
+            //   child: TabBarView(
+            //     controller: _tabController,
+            //     children: [
+            //       // Rides tab
+            //       SingleChildScrollView(
+            //         child: Padding(
+            //           padding: const EdgeInsets.symmetric(horizontal: 16),
+            //           child: Column(
+            //             children: List.generate(
+            //               rides.length,
+            //               (index) => Padding(
+            //                 padding: const EdgeInsets.only(bottom: 16),
+            //                 child: _buildRideCard(rides[index]),
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //       // Cargo tab
+            //       SingleChildScrollView(
+            //         child: Padding(
+            //           padding: const EdgeInsets.symmetric(horizontal: 16),
+            //           child: Column(
+            //             children: List.generate(
+            //               cargo.length,
+            //               (index) => Padding(
+            //                 padding: const EdgeInsets.only(bottom: 16),
+            //                 child: _buildRideCard(cargo[index]),
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             // Fixed Action buttons at bottom
             Container(
               color: const Color(0xFFFAFAFA),
@@ -288,14 +382,20 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${ride.seatsAvailable} seats available',
+                      ride.tripType == 'ride'
+                          ? '${ride.seatsAvailable} seats available'
+                          : 'Price per Kg',
+                      //'${ride.seatsAvailable} seats available',
                       style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF666666),
                       ),
                     ),
                     Text(
-                      '${ride.price} GHS',
+                      ride.tripType == 'ride'
+                          ? '${ride.price} GHS'
+                          : '${ride.price} GHS/Kg',
+                      // '${ride.price} GHS',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -347,14 +447,16 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
 
 class RideOffer {
   final String route;
-  final int seatsAvailable;
+  final int? seatsAvailable;
   final int price;
   final String imageUrl;
+  final String tripType;
 
   RideOffer({
     required this.route,
     required this.seatsAvailable,
     required this.price,
     required this.imageUrl,
+    required this.tripType,
   });
 }

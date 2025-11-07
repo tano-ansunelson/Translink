@@ -268,36 +268,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  // const SizedBox(height: 20),
 
                   // Delete Account Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _showDeleteDialog,
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: Colors.red.shade300),
-                        backgroundColor: Colors.red.shade50,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      icon: Icon(
-                        Icons.delete_outline_rounded,
-                        color: Colors.red.shade700,
-                        size: 22,
-                      ),
-                      label: Text(
-                        'Delete Account',
-                        style: TextStyle(
-                          color: Colors.red.shade700,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // SizedBox(
+                  //   width: double.infinity,
+                  //   child: OutlinedButton.icon(
+                  //     onPressed: _showDeleteDialog,
+                  //     style: OutlinedButton.styleFrom(
+                  //       padding: const EdgeInsets.symmetric(vertical: 16),
+                  //       side: BorderSide(color: Colors.red.shade300),
+                  //       backgroundColor: Colors.red.shade50,
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(30),
+                  //       ),
+                  //     ),
+                  //     icon: Icon(
+                  //       Icons.delete_outline_rounded,
+                  //       color: Colors.red.shade700,
+                  //       size: 22,
+                  //     ),
+                  //     label: Text(
+                  //       'Delete Account',
+                  //       style: TextStyle(
+                  //         color: Colors.red.shade700,
+                  //         fontSize: 16,
+                  //         fontWeight: FontWeight.w600,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(height: 20),
 
                   // Save Changes Button

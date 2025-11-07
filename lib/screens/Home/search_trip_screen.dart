@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
 
@@ -11,17 +12,31 @@ class TransLinkSearchTripsPage extends StatefulWidget {
 }
 
 class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _fromController = TextEditingController();
   final TextEditingController _toController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
   bool _hasSearched = false;
+  String _tripType = 'ride'; // 'ride' or 'cargo'
+  String? _seatsError;
+  Stream<QuerySnapshot>? _tripsStream;
 
-  final List<Trip> availableTrips = [
-    Trip(from: 'Accra', to: 'Kumasi', seatsAvailable: 1, price: 120),
-    Trip(from: 'Accra', to: 'Takoradi', seatsAvailable: 2, price: 150),
-    Trip(from: 'Accra', to: 'Cape Coast', seatsAvailable: 3, price: 100),
-  ];
+  String _capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
+  }
+  // final List<Trip> availableTrips = [
+  //   Trip(from: 'Accra', to: 'Kumasi', seatsAvailable: 1, price: 120),
+  //   Trip(from: 'Accra', to: 'Takoradi', seatsAvailable: 2, price: 150),
+  //   Trip(from: 'Accra', to: 'Cape Coast', seatsAvailable: 3, price: 100),
+  // ];
 
   @override
   void dispose() {
@@ -144,15 +159,141 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
                           //   controller: _dateController,
                           //   hintText: 'Select Date',
                           // ),
-                          // const SizedBox(height: 24),
+                          const SizedBox(height: 24),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(6),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _tripType = 'ride';
+                                        _seatsError = null;
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _tripType == 'ride'
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: _tripType == 'ride'
+                                            ? [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.08),
+                                                  blurRadius: 4,
+                                                ),
+                                              ]
+                                            : [],
+                                      ),
+                                      child: Text(
+                                        'Ride-Sharing',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: _tripType == 'ride'
+                                              ? Colors.black
+                                              : const Color(0xFFCCCCCC),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _tripType = 'cargo';
+                                        _seatsError = null;
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _tripType == 'cargo'
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: _tripType == 'cargo'
+                                            ? [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.08),
+                                                  blurRadius: 4,
+                                                ),
+                                              ]
+                                            : [],
+                                      ),
+                                      child: Text(
+                                        'Cargo-Sharing',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: _tripType == 'cargo'
+                                              ? Colors.black
+                                              : const Color(0xFFCCCCCC),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 32),
                           // Search button
                           SizedBox(
                             width: double.infinity,
                             height: 56,
                             child: ElevatedButton(
                               onPressed: () {
+                                if (_fromController.text.isEmpty ||
+                                    _toController.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Please enter origin and destination',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  return;
+                                }
+
                                 setState(() {
                                   _hasSearched = true;
+                                  _tripsStream = _firestore
+                                      .collection('trips')
+                                      .where('tripType', isEqualTo: _tripType)
+                                      .where('status', isEqualTo: 'active')
+                                      .where(
+                                        'origin',
+                                        isEqualTo: _fromController.text.trim(),
+                                      )
+                                      .where(
+                                        'destination',
+                                        isEqualTo: _toController.text.trim(),
+                                      )
+                                      .snapshots();
                                 });
                               },
                               style: ElevatedButton.styleFrom(
@@ -166,6 +307,7 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
                                   0xFFFFA500,
                                 ).withOpacity(0.3),
                               ),
+
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -189,55 +331,137 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
                   ),
                   if (_hasSearched) ...[
                     const SizedBox(height: 32),
-                    // Available Trips header
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Available Trips',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2D2D2D),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFA500).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              '${availableTrips.length} trips',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                    // Available Trips with StreamBuilder
+                    StreamBuilder<QuerySnapshot>(
+                      stream: _tripsStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(32.0),
+                              child: CircularProgressIndicator(
                                 color: Color(0xFFFFA500),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.all(32.0),
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No ${_tripType == 'ride' ? 'rides' : 'cargo trips'} found',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF999999),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Try adjusting your search criteria',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFFCCCCCC),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
+                        final trips = snapshot.data!.docs.map((doc) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          return Trip(
+                            from: _capitalize(data['origin']),
+                            to: _capitalize(data['destination']),
+                            seatsAvailable: data['seats'],
+                            price: (data['price'] as num).toInt(),
+                            tripType: data['tripType'],
+                          );
+                        }).toList();
+
+                        return Column(
+                          children: [
+                            // Available Trips header
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Available Trips',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF2D2D2D),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFFFFA500,
+                                      ).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '${trips.length} trip${trips.length != 1 ? 's' : ''}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFFFFA500),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Trip cards
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Column(
+                                children: List.generate(
+                                  trips.length,
+                                  (index) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: _buildTripCard(trips[index]),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
-                    const SizedBox(height: 16),
-                    // Trip cards
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        children: List.generate(
-                          availableTrips.length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _buildTripCard(availableTrips[index]),
-                          ),
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 100),
                   ],
                   const SizedBox(height: 100),
                 ],
@@ -291,15 +515,15 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
           ),
         ),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$hintText location picker opened'),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text('$hintText location picker opened'),
+          //     behavior: SnackBarBehavior.floating,
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(12),
+          //     ),
+          //   ),
+          // );
         },
       ),
     );
@@ -361,6 +585,7 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
 
   Widget _buildTripCard(Trip trip) {
     return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -453,30 +678,44 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: trip.seatsAvailable <= 2
-                                    ? const Color(0xFFFF5722).withOpacity(0.1)
-                                    : const Color(0xFF4CAF50).withOpacity(0.1),
+                                color: trip.tripType == 'ride'
+                                    ? (trip.seatsAvailable! <= 2
+                                          ? const Color(
+                                              0xFFFF5722,
+                                            ).withOpacity(0.1)
+                                          : const Color(
+                                              0xFF4CAF50,
+                                            ).withOpacity(0.1))
+                                    : const Color(0xFF2196F3).withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
-                                    Icons.event_seat,
+                                    trip.tripType == 'ride'
+                                        ? Icons.event_seat
+                                        : Icons.local_shipping,
                                     size: 14,
-                                    color: trip.seatsAvailable <= 2
-                                        ? const Color(0xFFFF5722)
-                                        : const Color(0xFF4CAF50),
+                                    color: trip.tripType == 'ride'
+                                        ? (trip.seatsAvailable! <= 2
+                                              ? const Color(0xFFFF5722)
+                                              : const Color(0xFF4CAF50))
+                                        : const Color(0xFF2196F3),
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    '${trip.seatsAvailable} seat${trip.seatsAvailable > 1 ? 's' : ''} left',
+                                    trip.tripType == 'ride'
+                                        ? '${trip.seatsAvailable} seat${trip.seatsAvailable! > 1 ? 's' : ''} left'
+                                        : 'Cargo space available',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: trip.seatsAvailable <= 2
-                                          ? const Color(0xFFFF5722)
-                                          : const Color(0xFF4CAF50),
+                                      color: trip.tripType == 'ride'
+                                          ? (trip.seatsAvailable! <= 2
+                                                ? const Color(0xFFFF5722)
+                                                : const Color(0xFF4CAF50))
+                                          : const Color(0xFF2196F3),
                                     ),
                                   ),
                                 ],
@@ -525,7 +764,9 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'GHS ${trip.price}',
+                            trip.tripType == 'ride'
+                                ? 'GHS ${trip.price}'
+                                : 'GHS ${trip.price}/kg',
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -591,13 +832,15 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
 class Trip {
   final String from;
   final String to;
-  final int seatsAvailable;
+  final int? seatsAvailable;
   final int price;
+  final String tripType;
 
   Trip({
     required this.from,
     required this.to,
-    required this.seatsAvailable,
+    this.seatsAvailable,
     required this.price,
+    required this.tripType,
   });
 }
