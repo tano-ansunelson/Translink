@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
+//import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
 import 'package:translink/screens/Home/booking_cargo_screen.dart';
 import 'package:translink/screens/Home/booking_ride_screen.dart';
 import 'package:translink/screens/Home/create_trip_screen.dart';
@@ -28,7 +28,41 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
         })
         .join(' ');
   }
+  // final List<RideOffer> rides = [
+  //   RideOffer(
+  //     route: 'Accra to Kumasi',
+  //     seatsAvailable: 12,
+  //     price: 100,
+  //     imageUrl: 'assets/road1.jpg',
+  //   ),
+  //   RideOffer(
+  //     route: 'Accra to Takoradi',
+  //     seatsAvailable: 8,
+  //     price: 80,
+  //     imageUrl: 'assets/road2.jpg',
+  //   ),
+  //   RideOffer(
+  //     route: 'Accra to Tamale',
+  //     seatsAvailable: 15,
+  //     price: 150,
+  //     imageUrl: 'assets/road3.jpg',
+  //   ),
+  // ];
 
+  // final List<RideOffer> cargo = [
+  //   RideOffer(
+  //     route: 'Accra to Kumasi',
+  //     seatsAvailable: 5,
+  //     price: 120,
+  //     imageUrl: 'assets/cargo1.jpg',
+  //   ),
+  //   RideOffer(
+  //     route: 'Accra to Cape Coast',
+  //     seatsAvailable: 3,
+  //     price: 90,
+  //     imageUrl: 'assets/cargo2.jpg',
+  //   ),
+  // ];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
@@ -344,7 +378,15 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
                   child: ElevatedButton(
                     onPressed: () {
                       if (ride.tripType == 'ride') {
-                        Navigator.pushNamed(context, TransLinkBookRidePage.id);
+                        Navigator.pushNamed(
+                          context,
+                          TransLinkBookRidePage.id,
+                          arguments: {
+                            'origin': ride.route.split(' to ')[0],
+                            'destination': ride.route.split(' to ')[1],
+                            'price': ride.price,
+                          },
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Booking Ride..${ride.route}'),
@@ -352,7 +394,15 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
                           ),
                         );
                       } else if (ride.tripType == 'cargo') {
-                        Navigator.pushNamed(context, TransLinkBookCargoPage.id);
+                        Navigator.pushNamed(
+                          context,
+                          TransLinkBookCargoPage.id,
+                          arguments: {
+                            'origin': ride.route.split(' to ')[0],
+                            'destination': ride.route.split(' to ')[1],
+                            'price': ride.price,
+                          },
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Booking Cargo..${ride.route}'),
