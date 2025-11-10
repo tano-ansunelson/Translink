@@ -33,11 +33,6 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
         })
         .join(' ');
   }
-  // final List<Trip> availableTrips = [
-  //   Trip(from: 'Accra', to: 'Kumasi', seatsAvailable: 1, price: 120),
-  //   Trip(from: 'Accra', to: 'Takoradi', seatsAvailable: 2, price: 150),
-  //   Trip(from: 'Accra', to: 'Cape Coast', seatsAvailable: 3, price: 100),
-  // ];
 
   @override
   void dispose() {
@@ -515,74 +510,20 @@ class _TransLinkSearchTripsPageState extends State<TransLinkSearchTripsPage> {
             vertical: 18,
           ),
         ),
-        onTap: () {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(
-          //     content: Text('$hintText location picker opened'),
-          //     behavior: SnackBarBehavior.floating,
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(12),
-          //     ),
-          //   ),
-          // );
+        onChanged: (value) {
+          final lowercased = value.toLowerCase();
+          if (controller.text != lowercased) {
+            final cursorPos = controller.selection;
+            controller.value = TextEditingValue(
+              text: lowercased,
+              selection: cursorPos,
+            );
+          }
+          setState(() {});
         },
       ),
     );
   }
-
-  // Widget _buildDateField({
-  //   required TextEditingController controller,
-  //   required String hintText,
-  // }) {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: const Color(0xFFF5F6FA),
-  //       borderRadius: BorderRadius.circular(16),
-  //     ),
-  //     child: TextField(
-  //       controller: controller,
-  //       decoration: InputDecoration(
-  //         hintText: hintText,
-  //         hintStyle: const TextStyle(
-  //           color: Color(0xFFBBBBBB),
-  //           fontSize: 15,
-  //           fontWeight: FontWeight.w500,
-  //         ),
-  //         prefixIcon: Container(
-  //           margin: const EdgeInsets.all(12),
-  //           padding: const EdgeInsets.all(8),
-  //           decoration: BoxDecoration(
-  //             color: const Color(0xFF2196F3).withOpacity(0.1),
-  //             borderRadius: BorderRadius.circular(10),
-  //           ),
-  //           child: const Icon(
-  //             Icons.calendar_today,
-  //             color: Color(0xFF2196F3),
-  //             size: 20,
-  //           ),
-  //         ),
-  //         border: OutlineInputBorder(
-  //           borderRadius: BorderRadius.circular(16),
-  //           borderSide: BorderSide.none,
-  //         ),
-  //         filled: true,
-  //         fillColor: const Color(0xFFF5F6FA),
-  //         contentPadding: const EdgeInsets.symmetric(
-  //           horizontal: 16,
-  //           vertical: 18,
-  //         ),
-  //       ),
-  //       onTap: () {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           const SnackBar(
-  //             content: Text('Date picker opened'),
-  //             behavior: SnackBarBehavior.floating,
-  //           ),
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
 
   Widget _buildTripCard(Trip trip) {
     return Container(

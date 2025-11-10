@@ -260,14 +260,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const SizedBox(height: 40),
 
                   // Delete Account Section
-                  Text(
-                    'If you delete your account, you will permanently lose your profile, trips, and messages. This action cannot be undone.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade600,
-                      height: 1.5,
-                    ),
-                  ),
+
                   // const SizedBox(height: 20),
 
                   // Delete Account Button

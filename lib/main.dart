@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:translink/firebase_options.dart';
 import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
 import 'package:translink/screens/Bottom_Navigation/bottombar_navigation_screen.dart';
+import 'package:translink/screens/Home/booking_cargo_screen.dart';
+import 'package:translink/screens/Home/booking_ride_screen.dart';
 import 'package:translink/screens/Home/chat_screen/chat_message_screen.dart';
 import 'package:translink/screens/Home/chat_screen/chat_screen.dart';
 import 'package:translink/screens/Home/create_trip_screen.dart';
@@ -74,6 +76,9 @@ class MyApp extends StatelessWidget {
         CancelTripConfirmationScreen.id: (context) =>
             const CancelTripConfirmationScreen(),
         TransLinkChatPage.id: (context) => const TransLinkChatPage(),
+        TransLinkBookCargoPage.id: (context) => const TransLinkBookCargoPage(),
+        TransLinkBookRidePage.id: (context) => const TransLinkBookRidePage(),
+        // BookingRideCargoScreen.id: (context) => const BookingRideCargoScreen(),
       },
     );
   }

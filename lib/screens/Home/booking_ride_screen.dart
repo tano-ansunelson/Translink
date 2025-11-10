@@ -44,9 +44,7 @@ class _TransLinkBookRidePageState extends State<TransLinkBookRidePage> {
                     IconButton(
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Back pressed')),
-                        );
+                        Navigator.pop(context);
                       },
                     ),
                     const Spacer(),
