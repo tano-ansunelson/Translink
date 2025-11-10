@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
+import 'package:translink/screens/Home/booking_cargo_screen.dart';
+import 'package:translink/screens/Home/booking_ride_screen.dart';
 import 'package:translink/screens/Home/create_trip_screen.dart';
 import 'package:translink/screens/Home/search_trip_screen.dart';
 
@@ -15,6 +17,7 @@ class TransLinkHomePage extends StatefulWidget {
 class _TransLinkHomePageState extends State<TransLinkHomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
   String _capitalize(String text) {
     if (text.isEmpty) return text;
     return text
@@ -25,41 +28,7 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
         })
         .join(' ');
   }
-  // final List<RideOffer> rides = [
-  //   RideOffer(
-  //     route: 'Accra to Kumasi',
-  //     seatsAvailable: 12,
-  //     price: 100,
-  //     imageUrl: 'assets/road1.jpg',
-  //   ),
-  //   RideOffer(
-  //     route: 'Accra to Takoradi',
-  //     seatsAvailable: 8,
-  //     price: 80,
-  //     imageUrl: 'assets/road2.jpg',
-  //   ),
-  //   RideOffer(
-  //     route: 'Accra to Tamale',
-  //     seatsAvailable: 15,
-  //     price: 150,
-  //     imageUrl: 'assets/road3.jpg',
-  //   ),
-  // ];
 
-  // final List<RideOffer> cargo = [
-  //   RideOffer(
-  //     route: 'Accra to Kumasi',
-  //     seatsAvailable: 5,
-  //     price: 120,
-  //     imageUrl: 'assets/cargo1.jpg',
-  //   ),
-  //   RideOffer(
-  //     route: 'Accra to Cape Coast',
-  //     seatsAvailable: 3,
-  //     price: 90,
-  //     imageUrl: 'assets/cargo2.jpg',
-  //   ),
-  // ];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
@@ -224,43 +193,7 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
                 ],
               ),
             ),
-            // Expanded(
-            //   child: TabBarView(
-            //     controller: _tabController,
-            //     children: [
-            //       // Rides tab
-            //       SingleChildScrollView(
-            //         child: Padding(
-            //           padding: const EdgeInsets.symmetric(horizontal: 16),
-            //           child: Column(
-            //             children: List.generate(
-            //               rides.length,
-            //               (index) => Padding(
-            //                 padding: const EdgeInsets.only(bottom: 16),
-            //                 child: _buildRideCard(rides[index]),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //       // Cargo tab
-            //       SingleChildScrollView(
-            //         child: Padding(
-            //           padding: const EdgeInsets.symmetric(horizontal: 16),
-            //           child: Column(
-            //             children: List.generate(
-            //               cargo.length,
-            //               (index) => Padding(
-            //                 padding: const EdgeInsets.only(bottom: 16),
-            //                 child: _buildRideCard(cargo[index]),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
+
             // Fixed Action buttons at bottom
             Container(
               color: const Color(0xFFFAFAFA),
@@ -410,13 +343,23 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
                   height: 44,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, NewBookingScreen.id);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Booked: ${ride.route}'),
-                          backgroundColor: const Color(0xFFFFA500),
-                        ),
-                      );
+                      if (ride.tripType == 'ride') {
+                        Navigator.pushNamed(context, TransLinkBookRidePage.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Booking Ride..${ride.route}'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      } else if (ride.tripType == 'cargo') {
+                        Navigator.pushNamed(context, TransLinkBookCargoPage.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Booking Cargo..${ride.route}'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFE4B5),

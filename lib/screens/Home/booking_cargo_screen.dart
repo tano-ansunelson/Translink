@@ -52,9 +52,7 @@ class _TransLinkBookCargoPageState extends State<TransLinkBookCargoPage> {
                     IconButton(
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Back pressed')),
-                        );
+                        Navigator.pop(context);
                       },
                     ),
                     const Spacer(),
@@ -118,13 +116,13 @@ class _TransLinkBookCargoPageState extends State<TransLinkBookCargoPage> {
                     ),
                     const SizedBox(height: 24),
                     // Weight Estimate
-                    _buildFormLabel('Weight Estimate (kg)'),
-                    const SizedBox(height: 8),
-                    _buildTextFormField(
-                      controller: _weightEstimateController,
-                      hintText: 'Approximate weight',
-                      keyboardType: TextInputType.number,
-                    ),
+                    // _buildFormLabel('Weight Estimate (kg)'),
+                    // const SizedBox(height: 8),
+                    // _buildTextFormField(
+                    //   controller: _weightEstimateController,
+                    //   hintText: 'Approximate weight',
+                    //   keyboardType: TextInputType.number,
+                    // ),
                   ],
                 ),
               ),
@@ -146,7 +144,7 @@ class _TransLinkBookCargoPageState extends State<TransLinkBookCargoPage> {
                       elevation: 0,
                     ),
                     child: Text(
-                      'Continue',
+                      'Book Cargo',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
