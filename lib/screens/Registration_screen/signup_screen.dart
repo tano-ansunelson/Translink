@@ -480,6 +480,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           'fullName': _fullNameController.text.trim(),
           'email': _emailController.text.trim(),
           'createdAt': FieldValue.serverTimestamp(),
+          'isDriverVerified': false,
         });
         setState(() {
           isLoading = false;

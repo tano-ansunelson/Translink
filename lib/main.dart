@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:translink/firebase_options.dart';
 import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
 import 'package:translink/screens/Bottom_Navigation/bottombar_navigation_screen.dart';
+import 'package:translink/screens/Driver_info/driver_verification_screen.dart';
 import 'package:translink/screens/Home/booking_cargo_screen.dart';
 import 'package:translink/screens/Home/booking_ride_screen.dart';
 import 'package:translink/screens/Home/chat_screen/chat_message_screen.dart';
@@ -27,13 +29,19 @@ import 'package:translink/screens/Trip_cancellation/trip_cancellation_reason_she
 import 'package:translink/screens/onboarding_screens/landing_screen.dart';
 import 'package:translink/screens/onboarding_screens/passenger_onboarding_screen.dart';
 import 'package:translink/screens/onboarding_screens/splash_screen.dart';
+import 'package:translink/screens/services/provider/driver_provider.dart';
 
 //import 'package:translink_project/screens/registration_screens/signup_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => DriverProvider())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -79,6 +87,8 @@ class MyApp extends StatelessWidget {
         TransLinkBookCargoPage.id: (context) => const TransLinkBookCargoPage(),
         TransLinkBookRidePage.id: (context) => const TransLinkBookRidePage(),
         // BookingRideCargoScreen.id: (context) => const BookingRideCargoScreen(),
+        DriverVerificationScreen.id: (context) =>
+            const DriverVerificationScreen(),
       },
     );
   }

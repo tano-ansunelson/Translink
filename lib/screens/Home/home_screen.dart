@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:translink/screens/Driver_info/driver_verification_screen.dart';
 //import 'package:translink/screens/Booking_screen/booking_ride_cargo_screen.dart';
 import 'package:translink/screens/Home/booking_cargo_screen.dart';
 import 'package:translink/screens/Home/booking_ride_screen.dart';
@@ -28,41 +30,7 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
         })
         .join(' ');
   }
-  // final List<RideOffer> rides = [
-  //   RideOffer(
-  //     route: 'Accra to Kumasi',
-  //     seatsAvailable: 12,
-  //     price: 100,
-  //     imageUrl: 'assets/road1.jpg',
-  //   ),
-  //   RideOffer(
-  //     route: 'Accra to Takoradi',
-  //     seatsAvailable: 8,
-  //     price: 80,
-  //     imageUrl: 'assets/road2.jpg',
-  //   ),
-  //   RideOffer(
-  //     route: 'Accra to Tamale',
-  //     seatsAvailable: 15,
-  //     price: 150,
-  //     imageUrl: 'assets/road3.jpg',
-  //   ),
-  // ];
 
-  // final List<RideOffer> cargo = [
-  //   RideOffer(
-  //     route: 'Accra to Kumasi',
-  //     seatsAvailable: 5,
-  //     price: 120,
-  //     imageUrl: 'assets/cargo1.jpg',
-  //   ),
-  //   RideOffer(
-  //     route: 'Accra to Cape Coast',
-  //     seatsAvailable: 3,
-  //     price: 90,
-  //     imageUrl: 'assets/cargo2.jpg',
-  //   ),
-  // ];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
@@ -236,11 +204,48 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          TransLinkCreateTripPage.id,
-                        );
+                      onPressed: () async {
+                        final userId = FirebaseAuth.instance.currentUser!.uid;
+                        final userDoc = await _firestore
+                            .collection('users')
+                            .doc(userId)
+                            .get();
+                        final isVerified =
+                            userDoc.data()?['isDriverVerified'] ?? false;
+                        if (!isVerified) {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('Verification Required'),
+                              content: const Text(
+                                'You need to be a verified driver to post trips. Please complete the verification process.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    //Navigator.of(context).pop();
+                                    Navigator.pushNamed(
+                                      context,
+                                      DriverVerificationScreen.id,
+                                    );
+                                  },
+                                  child: const Text('Verify Now'),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          Navigator.pushNamed(
+                            context,
+                            TransLinkCreateTripPage.id,
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFFA500),
@@ -372,62 +377,96 @@ class _TransLinkHomePageState extends State<TransLinkHomePage>
                   ],
                 ),
                 const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  height: 44,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (ride.tripType == 'ride') {
-                        Navigator.pushNamed(
-                          context,
-                          TransLinkBookRidePage.id,
-                          arguments: {
-                            'origin': ride.route.split(' to ')[0],
-                            'destination': ride.route.split(' to ')[1],
-                            'price': ride.price,
-                          },
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Booking Ride..${ride.route}'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      } else if (ride.tripType == 'cargo') {
-                        Navigator.pushNamed(
-                          context,
-                          TransLinkBookCargoPage.id,
-                          arguments: {
-                            'origin': ride.route.split(' to ')[0],
-                            'destination': ride.route.split(' to ')[1],
-                            'price': ride.price,
-                          },
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Booking Cargo..${ride.route}'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFE4B5),
-                      foregroundColor: const Color(0xFFFFA500),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFE8D5C4),
+                        border: Border.all(
+                          color: const Color(0xFFD4B5A0),
+                          width: 3,
+                        ),
                       ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Book Now',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFFFA500),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/profile_avatar.png',
+                          // Replace with your asset
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person,
+                              size: 35,
+                              color: Color(0xFF8B7355),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (ride.tripType == 'ride') {
+                              Navigator.pushNamed(
+                                context,
+                                TransLinkBookRidePage.id,
+                                arguments: {
+                                  'origin': ride.route.split(' to ')[0],
+                                  'destination': ride.route.split(' to ')[1],
+                                  'price': ride.price,
+                                },
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Booking Ride..${ride.route}'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            } else if (ride.tripType == 'cargo') {
+                              Navigator.pushNamed(
+                                context,
+                                TransLinkBookCargoPage.id,
+                                arguments: {
+                                  'origin': ride.route.split(' to ')[0],
+                                  'destination': ride.route.split(' to ')[1],
+                                  'price': ride.price,
+                                },
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Booking Cargo..${ride.route}'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFFE4B5),
+                            foregroundColor: const Color(0xFFFFA500),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            'Book Now',
+                            style: Theme.of(context).textTheme.labelMedium
+                                ?.copyWith(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFFFA500),
+                                ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

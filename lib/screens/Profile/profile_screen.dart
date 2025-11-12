@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 import 'package:translink/screens/Profile/edit_profile_screen.dart';
+import 'package:translink/screens/services/provider/driver_provider.dart';
 //import 'package:translink/screens/Registration_screen/login_screen.dart';
 import 'package:translink/utils/logout_handler.dart';
 
@@ -26,6 +28,7 @@ class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final driver = Provider.of<DriverProvider>(context);
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       body: SafeArea(
@@ -97,7 +100,7 @@ class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
               const SizedBox(height: 16),
               // Name
               Text(
-                'Kwame Mensah',
+                driver.fullName ?? 'Kwame Mensah',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -161,95 +164,100 @@ class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
                     _buildVehicleInfoCard(
                       icon: Icons.local_shipping,
                       title: 'Vehicle Type',
-                      subtitle: 'Toyota Hilux',
+                      subtitle: (driver.vehicleType ?? 'Toyota Hilux')
+                          .toUpperCase(),
                     ),
                     const SizedBox(height: 12),
                     // License Plate card
                     _buildVehicleInfoCard(
                       icon: Icons.badge,
                       title: 'License Plate',
-                      subtitle: 'GR 2345-20',
+                      subtitle: (driver.licensePlate ?? 'GR 2345-20')
+                          .toUpperCase(),
                     ),
+                    const SizedBox(height: 12),
+                    _buildMenuSection(),
                   ],
                 ),
               ),
               const SizedBox(height: 32),
               // Rating section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Rating',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              '4.8',
-                              style: Theme.of(context).textTheme.displaySmall
-                                  ?.copyWith(
-                                    fontSize: 48,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: List.generate(
-                                5,
-                                (index) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 2,
-                                  ),
-                                  child: Icon(
-                                    Icons.star,
-                                    color: const Color(0xFFFFA500),
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '125 reviews',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: const Color(0xFF999999)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 32),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              _buildRatingBar(5, 70),
-                              const SizedBox(height: 8),
-                              _buildRatingBar(4, 20),
-                              const SizedBox(height: 8),
-                              _buildRatingBar(3, 5),
-                              const SizedBox(height: 8),
-                              _buildRatingBar(2, 3),
-                              const SizedBox(height: 8),
-                              _buildRatingBar(1, 2),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    // Logout tile
-                    _buildLogoutTile(),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16),
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Text(
+              //         'Rating',
+              //         style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              //           fontSize: 18,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       ),
+              //       const SizedBox(height: 16),
+              //       Row(
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [
+              //           Column(
+              //             children: [
+              //               Text(
+              //                 '4.8',
+              //                 style: Theme.of(context).textTheme.displaySmall
+              //                     ?.copyWith(
+              //                       fontSize: 48,
+              //                       fontWeight: FontWeight.bold,
+              //                     ),
+              //               ),
+              //               const SizedBox(height: 8),
+              //               Row(
+              //                 children: List.generate(
+              //                   5,
+              //                   (index) => Padding(
+              //                     padding: const EdgeInsets.symmetric(
+              //                       horizontal: 2,
+              //                     ),
+              //                     child: Icon(
+              //                       Icons.star,
+              //                       color: const Color(0xFFFFA500),
+              //                       size: 20,
+              //                     ),
+              //                   ),
+              //                 ),
+              //               ),
+              //               const SizedBox(height: 8),
+              //               Text(
+              //                 '125 reviews',
+              //                 style: Theme.of(context).textTheme.bodySmall
+              //                     ?.copyWith(color: const Color(0xFF999999)),
+              //               ),
+              //             ],
+              //           ),
+              //           const SizedBox(width: 32),
+              //           Expanded(
+              //             child: Column(
+              //               children: [
+              //                 // _buildRatingBar(5, 70),
+              //                 // const SizedBox(height: 8),
+              //                 // _buildRatingBar(4, 20),
+              //                 // const SizedBox(height: 8),
+              //                 // _buildRatingBar(3, 5),
+              //                 // const SizedBox(height: 8),
+              //                 // _buildRatingBar(2, 3),
+              //                 // const SizedBox(height: 8),
+              //                 // _buildRatingBar(1, 2),
+              //               ],
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //       const SizedBox(height: 32),
+
+              //       // Logout tile
+              //     ],
+              //   ),
+              // ),
               const SizedBox(height: 100),
+              _buildLogoutTile(),
             ],
           ),
         ),
@@ -312,45 +320,154 @@ class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
     );
   }
 
-  Widget _buildRatingBar(int stars, int percentage) {
-    return Row(
+  Widget _buildMenuSection() {
+    final menuItems = [
+      // {
+      //   'icon': Icons.person_outline_rounded,
+      //   'title': 'Edit Profile',
+      //   'subtitle': 'Update your personal information',
+      //   'color': const Color(0xFF2196F3),
+      //   'onTap': () =>
+      //       Navigator.pushNamed(context, AppRoutes.userProfileEditPage),
+      // },
+      {
+        'icon': Icons.history_rounded,
+        'title': 'Pickup History',
+        'subtitle': 'View your past waste collections',
+        'color': const Color(0xFF9C27B0),
+        'onTap': () {
+          //   Navigator.pushNamed(context, AppRoutes.pickuphistory);
+          // Navigate to pickup history
+        },
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '$stars',
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
+        const Text(
+          'Menu',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1B5E20),
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: percentage / 100,
-              minHeight: 6,
-              backgroundColor: const Color(0xFFE0E0E0),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFFFFA500),
-              ),
-            ),
+        const SizedBox(height: 16),
+        ...menuItems.map(
+          (item) => _buildEnhancedMenuTile(
+            icon: item['icon'] as IconData,
+            title: item['title'] as String,
+            subtitle: item['subtitle'] as String,
+            color: item['color'] as Color,
+            onTap: item['onTap'] as VoidCallback,
           ),
         ),
-        const SizedBox(width: 8),
-        Text(
-          '$percentage%',
-          style: const TextStyle(fontSize: 12, color: Color(0xFF999999)),
-        ),
+        const SizedBox(height: 16),
+        // _buildLogoutTile(),
       ],
     );
   }
+
+  Widget _buildEnhancedMenuTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 12,
+        ),
+        leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: color, size: 24),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            color: Color(0xFF1B5E20),
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Icons.arrow_forward_ios, size: 14, color: color),
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  // Widget _buildRatingBar(int stars, int percentage) {
+  //   return Row(
+  //     children: [
+  //       Text(
+  //         '$stars',
+  //         style: const TextStyle(
+  //           fontSize: 14,
+  //           fontWeight: FontWeight.w600,
+  //           color: Colors.black,
+  //         ),
+  //       ),
+  //       const SizedBox(width: 8),
+  //       Expanded(
+  //         child: ClipRRect(
+  //           borderRadius: BorderRadius.circular(4),
+  //           child: LinearProgressIndicator(
+  //             value: percentage / 100,
+  //             minHeight: 6,
+  //             backgroundColor: const Color(0xFFE0E0E0),
+  //             valueColor: const AlwaysStoppedAnimation<Color>(
+  //               Color(0xFFFFA500),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //       const SizedBox(width: 8),
+  //       Text(
+  //         '$percentage%',
+  //         style: const TextStyle(fontSize: 12, color: Color(0xFF999999)),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildLogoutTile() {
     return Container(
       decoration: BoxDecoration(
         color: Color.fromARGB(255, 103, 76, 26),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(60),
         border: Border.all(color: Color.fromARGB(255, 126, 91, 27)),
       ),
       child: ListTile(
@@ -360,7 +477,7 @@ class _TransLinkProfilePageState extends State<TransLinkProfilePage> {
           height: 48,
           decoration: BoxDecoration(
             color: Color.fromARGB(255, 235, 172, 55),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(30),
           ),
           child: const Icon(Icons.logout, color: Colors.red, size: 24),
         ),
